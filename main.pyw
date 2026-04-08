@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-import vlc
 from moviepy.editor import VideoFileClip
 from PyQt6.QtCore import (
     QEasingCurve,
@@ -70,6 +69,30 @@ QUALITY_PRESETS: List[Tuple[str, int, str]] = [
     ("Compact file", 22, "fast"),
     ("Preview draft", 26, "veryfast"),
 ]
+
+
+def configure_local_vlc() -> Optional[str]:
+    """Prefer libvlc.dll from the app folder and return plugin path if found."""
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    plugin_dir = os.path.join(app_dir, "plugins")
+
+    if hasattr(os, "add_dll_directory"):
+        try:
+            os.add_dll_directory(app_dir)
+        except Exception:
+            pass
+
+    if app_dir not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = f"{app_dir};{os.environ.get('PATH', '')}"
+
+    if os.path.isdir(plugin_dir):
+        os.environ.setdefault("VLC_PLUGIN_PATH", plugin_dir)
+        return plugin_dir
+    return None
+
+
+_vlc_plugin_path = configure_local_vlc()
+import vlc
 
 
 @dataclass
@@ -889,6 +912,7 @@ class VideoPlayer(QMainWindow):
         self.current_volume = int(self._read_setting("player/volume", 85))
         self.export_mute_audio = bool(int(self._read_setting("export/mute_audio", 0)))
 
+        # VLC 4+ removed --plugin-path; rely on VLC_PLUGIN_PATH env instead.
         self.vlc_instance = vlc.Instance("--quiet")
         self.media_player = self.vlc_instance.media_player_new()
 
