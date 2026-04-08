@@ -1,0 +1,14 @@
+﻿colorama==0.4.6
+decorator==5.2.1
+ImageIO==2.37.3
+imageio-ffmpeg==0.6.0
+moviepy==2.2.1
+numpy==2.4.4
+pillow==11.3.0
+proglog==0.1.12
+PyQt6==6.11.0
+PyQt6-Qt6==6.11.0
+PyQt6_sip==13.11.1
+python-dotenv==1.2.2
+python-vlc==3.0.21203
+tqdm==4.67.3
